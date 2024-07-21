@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+
+  db:
+    image: mongo:5.0
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_DATABASE: clients
+    volumes:
+      - ./mongo-init-script/:/docker-entrypoint-initdb.d/:ro
+      - ./test-data/clients.json:/test-data/clients.json:ro
+      - ./entrypoint.sh:/entrypoint.sh:ro
+    networks:
+      - backend
+    env_file: .env
+    container_name: mongodb
+
+  api:
+    build: ./
+    ports:
+      - 5000:5000
+    volumes:
+      - ./src:/src
+    networks:
+      - backend
+    env_file: .env
+    container_name: clients_api
+
+networks:
+  backend:
+    name: bff_backend
+    external: true
+    driver: bridge
